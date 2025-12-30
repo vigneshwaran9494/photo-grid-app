@@ -1,50 +1,157 @@
-# Welcome to your Expo app 👋
+# Photo Grid
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## Features
 
-## Get started
+- 🖼️ **Masonry Grid Layout** -  two-column grid layout optimized for photos
+- ♾️ **Infinite Scroll** - Seamless pagination with automatic loading of more photos
+- 🚀 **Performance Optimized** - Built with FlashList for smooth scrolling and efficient rendering
+- 🎨 **Progressive Image Loading** - Blur hash placeholders and progressive image loading for better UX
+- 🌓 **Dark/Light Mode** - Automatic theme switching based on system preferences
+- 📱 **Full Screen Modal** - Tap any photo to view it in full screen with details
+- 🔄 **State Management** - Redux Toolkit Query for efficient API state management
+- ⚡ **Optimized Caching** - Smart caching strategy to minimize API calls
+- 🎯 **TypeScript** - Fully typed for better developer experience
+- 📱 **Cross Platform** - Works on iOS, Android, and Web
 
-1. Install dependencies
+## Tech Stack
 
+- **Framework**: [Expo](https://expo.dev) (~54.0.30)
+- **React Native**: 0.81.5
+- **React**: 19.1.0
+- **Routing**: [Expo Router](https://docs.expo.dev/router/introduction/) (file-based routing)
+- **State Management**: [Redux Toolkit](https://redux-toolkit.js.org/) with RTK Query
+- **UI Components**: 
+  - [FlashList](https://github.com/shopify/flash-list) - High-performance list component
+  - [Expo Image](https://docs.expo.dev/versions/latest/sdk/image/) - Optimized image component
+- **API**: [Unsplash API](https://unsplash.com/developers)
+- **Language**: TypeScript
+
+## Prerequisites
+
+- Node.js (v18 or higher)
+- npm or yarn
+- Expo CLI (installed globally or via npx)
+- For iOS development: Xcode (macOS only)
+- For Android development: Android Studio
+- Unsplash API key ([Get one here](https://unsplash.com/developers))
+
+## Installation
+
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd photo-grid
+   ```
+
+2. Install dependencies:
    ```bash
    npm install
    ```
 
-2. Start the app
-
-   ```bash
-   npx expo start
+3. Set up environment variables:
+   Create a `.env` file in the root directory:
+   ```env
+   EXPO_PUBLIC_UNSPLASH_API_URL=https://api.unsplash.com/
+   EXPO_PUBLIC_UNSPLASH_API_KEY=your_unsplash_api_key_here
    ```
 
-In the output, you'll find options to open the app in a
+## Running the App
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
+### Start the development server:
 ```bash
+npm start
+# or
+npx expo start
+```
+
+### Run on specific platforms:
+```bash
+# iOS Simulator
+npm run ios
+
+# Android Emulator
+npm run android
+
+# Web
+npm run web
+```
+
+### Other commands:
+```bash
+# Lint the code
+npm run lint
+
+# Reset project (moves starter code to app-example)
 npm run reset-project
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Project Structure
 
-## Learn more
+```
+photo-grid/
+├── app/                    # Expo Router pages (file-based routing)
+│   ├── (tabs)/            # Tab navigation screens
+│   │   ├── index.tsx      # Main photo grid screen
+│   │   └── _layout.tsx    # Tab layout configuration
+│   ├── modal.tsx          # Full-screen photo modal
+│   └── _layout.tsx        # Root layout
+├── components/            # Reusable UI components
+│   ├── ui/               # UI-specific components
+│   │   ├── photo-list.tsx        # Main photo grid list
+│   │   ├── photo-item.tsx        # Individual photo item
+│   │   ├── progressive-image.tsx # Progressive image loader
+│   │   └── error-state.tsx       # Error handling component
+│   └── themed-*.tsx       # Themed components
+├── constants/            # App constants
+│   ├── api-endpoints.ts  # API endpoint definitions
+│   └── theme.ts          # Theme configuration
+├── data/                 # Data layer
+│   ├── api/             # API services (RTK Query)
+│   │   └── photos-api.ts
+│   ├── store/           # Redux store configuration
+│   │   └── store.ts
+│   └── types/           # TypeScript type definitions
+│       └── photos-list-data.ts
+├── hooks/               # Custom React hooks
+└── assets/              # Images and static assets
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+## Key Components
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### PhotoList
+The main component that displays photos in a masonry grid. Features:
+- Infinite scroll pagination
+- Optimized rendering with FlashList
+- Loading and error states
+- Smart caching to prevent unnecessary refetches
 
-## Join the community
+### PhotoItem
+Individual photo card component that:
+- Displays photo with blur hash placeholder
+- Handles tap navigation to full-screen modal
+- Optimized for performance with memoization
 
-Join our community of developers creating universal apps.
+### ProgressiveImage
+Custom image component that:
+- Shows blur hash while loading
+- Progressively loads from regular to full quality
+- Smooth transitions between image states
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### Modal Screen
+Full-screen photo viewer that:
+- Displays high-quality image
+- Shows photo description and author
+- Smooth navigation and animations
+
+## API Integration
+
+The app uses the Unsplash API to fetch photos. The integration is handled through Redux Toolkit Query with:
+
+- **Automatic caching** - Photos are cached to reduce API calls
+- **Pagination support** - Efficiently loads photos page by page
+- **Merge strategy** - Combines pages into a single cache entry
+- **Error handling** - Graceful error states and retry logic
+
+### API Endpoints Used:
+- `GET /photos` - Fetch paginated list of photos
+- `GET /photos/:id` - Fetch individual photo details

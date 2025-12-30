@@ -49,9 +49,15 @@ function PhotoListComponent() {
   const fetchingRef = useRef(false);
 
   // Get the photos from the API
+  // Prevent unnecessary refetches when navigating away/back
   const { data, isLoading, error, isFetching } = useGetPhotosQuery(
     { page, perPage: IMAGES_PER_PAGE },
-    { skip: false }
+    { 
+      skip: false,
+      refetchOnMountOrArgChange: false, // Don't refetch on mount if data exists
+      refetchOnFocus: false, // Don't refetch when screen comes into focus
+      refetchOnReconnect: false, // Don't refetch on reconnect
+    }
   );
 
   // Determine if there are more photos to load
