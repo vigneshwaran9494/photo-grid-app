@@ -5,7 +5,7 @@ import { ProgressiveImage } from '@/components/ui/progressive-image';
 import { Colors } from '@/constants/theme';
 import { useGetPhotoByIdQuery } from '@/data/api/photos-api';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { ActivityIndicator, Dimensions, Pressable, StatusBar, StyleSheet, Text, View } from 'react-native';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -46,8 +46,8 @@ export default function ModalScreen() {
     );
   }
 
-  const aspectRatio = photo.height / photo.width;
-  const imageHeight = Math.min(SCREEN_HEIGHT, SCREEN_WIDTH * aspectRatio);
+  const aspectRatio = useCallback(() => photo.height / photo.width, [photo.height, photo.width]);
+  const imageHeight = useCallback(() => Math.min(SCREEN_HEIGHT, SCREEN_WIDTH * aspectRatio()), [SCREEN_HEIGHT, SCREEN_WIDTH, aspectRatio()]);
 
   // Prepare URLs array: regular first, then full for progressive loading
   const imageUrls = useMemo(() => [
@@ -67,7 +67,7 @@ export default function ModalScreen() {
           urls={imageUrls}
           mode="modal"
           contentFit="contain"
-          style={[styles.image, { height: imageHeight }]}
+          style={[styles.image, { height: imageHeight() }]}
           transition={200}
         />
       </View>
