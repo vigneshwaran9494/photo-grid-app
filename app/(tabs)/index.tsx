@@ -1,11 +1,12 @@
+import { ThemedView } from '@/components/themed-view';
 import { PhotoList } from '@/components/ui/photo-list';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 export default function HomeScreen() {
   return (
-    <View style={styles.container}>
+    <ThemedView style={styles.container}>
       <PhotoList />
-    </View>
+    </ThemedView>
   );
 }
 

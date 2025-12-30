@@ -1,4 +1,5 @@
 import { ThemedText } from '@/components/themed-text';
+import { ErrorState } from '@/components/ui/error-state';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors } from '@/constants/theme';
 import { useGetPhotoByIdQuery } from '@/data/api/photos-api';
@@ -31,7 +32,7 @@ export default function ModalScreen() {
         <Pressable onPress={handleClose} style={styles.closeButton}>
         <IconSymbol size={28} name="house.fill" color={Colors.light.text} />
         </Pressable>
-        <ThemedText style={styles.errorText}>Photo not found</ThemedText>
+        <ErrorState error={error} message="Photo not found" textStyle={styles.errorText} />
       </View>
     );
   }

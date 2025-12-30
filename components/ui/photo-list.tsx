@@ -1,12 +1,49 @@
+import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
+import { ErrorState } from '@/components/ui/error-state';
 import { PhotoItem } from '@/components/ui/photo-item';
+import { Colors } from '@/constants/theme';
 import { useGetPhotosQuery } from '@/data/api/photos-api';
+import { Photo } from '@/data/types/photos-list-data';
 import { FlashList } from '@shopify/flash-list';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { memo, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, StyleSheet } from 'react-native';
 
 const IMAGES_PER_PAGE = 10;
 
-export function PhotoList() {
+/**
+ * Footer component for the photo list
+ */
+const ListFooter = memo(({ loadingMore }: { loadingMore: boolean }): ReactNode => {
+  if (!loadingMore) return null;
+  return (
+    <ThemedView style={styles.footer}>
+      <ActivityIndicator size="small" color={Colors.light.text} />
+    </ThemedView>
+  );
+});
+ListFooter.displayName = 'ListFooter';
+
+/**
+ * Empty state component for the photo list
+ */
+const ListEmpty = memo(({ loading, error }: { loading: boolean; error: unknown }) => (
+  <ThemedView style={styles.emptyContainer}>
+    {loading && (
+      <>
+        <ActivityIndicator size="large" color={Colors.light.text} />
+        <ThemedText type="default" style={styles.emptyText}>Loading photos...</ThemedText>
+      </>
+    )}
+    {!!error && <ErrorState error={error} message="Error loading photos" />}
+    {!loading && !error && (
+      <ThemedText type="default" style={styles.emptyText}>No photos available</ThemedText>
+    )}
+  </ThemedView>
+));
+ListEmpty.displayName = 'ListEmpty';
+
+function PhotoListComponent() {
   // State for the page number
   const [page, setPage] = useState(1);
   const fetchingRef = useRef(false);
@@ -18,8 +55,8 @@ export function PhotoList() {
   );
 
   // Determine if there are more photos to load
-  const photos = data?.photos || [];
-  const hasMore = photos.length >= IMAGES_PER_PAGE;
+  const photos = useMemo(() => data?.photos || [], [data?.photos]);
+  const hasMore = useMemo(() => photos.length >= IMAGES_PER_PAGE, [photos.length]);
 
   // Reset fetching ref when fetch completes
   useEffect(() => {
@@ -54,67 +91,32 @@ export function PhotoList() {
   const loading = isLoading && page === 1;
   const loadingMore = isFetching && page > 1;
 
-  /**
-   * Render the footer of the list
-   */
-  const renderFooter = () => {
-    if (!loadingMore) return null;
-    return (
-      <View style={styles.footer}>
-        <ActivityIndicator size="small" color="#999" />
-      </View>
-    );
-  };
 
   /**
-   * Render the empty state of the list
+   * Extract key from photo item
    */
-  const renderEmpty = () => {
-    if (loading) {
-      return (
-        <View style={styles.emptyContainer}>
-          <ActivityIndicator size="large" color="#999" />
-          <Text style={styles.emptyText}>Loading photos...</Text>
-        </View>
-      );
-    }
-    if (error) {
-      return (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.errorText}>Error loading photos</Text>
-          <Text style={styles.errorSubtext}>
-            {'status' in error ? `Error: ${error.status}` : 'Failed to load photos'}
-          </Text>
-        </View>
-      );
-    }
-    return (
-      <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>No photos available</Text>
-      </View>
-    );
-  };
+  const keyExtractor = useCallback((photo: Photo) => photo.id, []);
 
   /**
    * Render the list of photos
    */
   return (
-    <View style={styles.container}>
+    <ThemedView style={styles.container}>
       <FlashList
         data={photos}
         numColumns={2}
         masonry={true}
-        renderItem={({ item: photo }) => <PhotoItem photo={photo} />}
-        keyExtractor={(photo) => photo.id}
+        renderItem={ ({ item: photo }) => <PhotoItem photo={photo} />}
+        keyExtractor={keyExtractor}
         onEndReached={handleEndReached}
         onEndReachedThreshold={0.5}
-        ListFooterComponent={renderFooter}
-        ListEmptyComponent={renderEmpty}
+        ListFooterComponent={() => <ListFooter loadingMore={loadingMore} />}
+        ListEmptyComponent={() => <ListEmpty loading={loading} error={error} />}
         contentContainerStyle={styles.listContent}
         removeClippedSubviews={true}
         drawDistance={500}
       />
-    </View>
+    </ThemedView>
   );
 }
 
@@ -141,16 +143,7 @@ const styles = StyleSheet.create({
   emptyText: {
     marginTop: 16,
     fontSize: 16,
-    color: '#999',
-  },
-  errorText: {
-    fontSize: 18,
-    color: '#ff4444',
-    fontWeight: '600',
-  },
-  errorSubtext: {
-    marginTop: 8,
-    fontSize: 14,
-    color: '#999',
   },
 });
+
+export const PhotoList = memo(PhotoListComponent);
