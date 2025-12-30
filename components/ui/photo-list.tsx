@@ -4,20 +4,22 @@ import { FlashList } from '@shopify/flash-list';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
-const PER_PAGE = 20;
+const IMAGES_PER_PAGE = 10;
 
 export function PhotoList() {
+  // State for the page number
   const [page, setPage] = useState(1);
   const fetchingRef = useRef(false);
 
+  // Get the photos from the API
   const { data, isLoading, error, isFetching } = useGetPhotosQuery(
-    { page, perPage: PER_PAGE },
+    { page, perPage: IMAGES_PER_PAGE },
     { skip: false }
   );
 
   // Determine if there are more photos to load
   const photos = data?.photos || [];
-  const hasMore = photos.length >= PER_PAGE;
+  const hasMore = photos.length >= IMAGES_PER_PAGE;
 
   // Reset fetching ref when fetch completes
   useEffect(() => {
@@ -26,6 +28,10 @@ export function PhotoList() {
     }
   }, [isFetching]);
 
+  /**
+   * Fetch more images when the user scrolls to the bottom of the list
+   * @returns void
+   */
   const fetchMoreImages = useCallback(() => {
     if (fetchingRef.current || !hasMore || isFetching || isLoading) {
       return;
@@ -35,6 +41,10 @@ export function PhotoList() {
     setPage((prevPage) => prevPage + 1);
   }, [hasMore, isFetching, isLoading]);
 
+  /**
+   * Handle the end of the list
+   * @returns void
+   */
   const handleEndReached = useCallback(() => {
     if (hasMore && !isFetching && !isLoading && !fetchingRef.current) {
       fetchMoreImages();
@@ -44,6 +54,9 @@ export function PhotoList() {
   const loading = isLoading && page === 1;
   const loadingMore = isFetching && page > 1;
 
+  /**
+   * Render the footer of the list
+   */
   const renderFooter = () => {
     if (!loadingMore) return null;
     return (
@@ -53,6 +66,9 @@ export function PhotoList() {
     );
   };
 
+  /**
+   * Render the empty state of the list
+   */
   const renderEmpty = () => {
     if (loading) {
       return (
@@ -79,6 +95,9 @@ export function PhotoList() {
     );
   };
 
+  /**
+   * Render the list of photos
+   */
   return (
     <View style={styles.container}>
       <FlashList
@@ -99,6 +118,9 @@ export function PhotoList() {
   );
 }
 
+/**
+ * Styles for the photo list
+ */
 const styles = StyleSheet.create({
   container: {
     flex: 1,

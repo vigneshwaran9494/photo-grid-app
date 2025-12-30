@@ -1,6 +1,7 @@
 import { Photo } from "@/data/types/photos-list-data";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
+import { memo, useCallback, useMemo } from "react";
 import { Dimensions, Pressable, StyleSheet } from "react-native";
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -9,21 +10,22 @@ const GRID_GAP = 4;
 const NUM_COLUMNS = 2;
 const COLUMN_WIDTH = (SCREEN_WIDTH - (GRID_PADDING * 2) - GRID_GAP) / NUM_COLUMNS;
 
-export function PhotoItem({ photo }: { photo: Photo }) {
+function PhotoItemComponent({ photo }: { photo: Photo }) {
     const router = useRouter();
     
-    // Calculate height based on image aspect ratio
-    const aspectRatio = photo.height / photo.width;
-    const imageHeight = COLUMN_WIDTH * aspectRatio;
+    // Calculate the height of the image based on the aspect ratio
+    const aspectRatio = useMemo(() => photo.height / photo.width, [photo.height, photo.width]);
+    const imageHeight = useMemo(() => COLUMN_WIDTH * aspectRatio, [COLUMN_WIDTH, aspectRatio]);
     
-    const handlePress = () => {
+    // Handle the press of the photo item
+    const handlePress = useCallback(() => {
         router.push({
             pathname: '/modal',
             params: {
                 photoId: photo.id,
             },
         });
-    };
+    }, [photo.id, router]);
 
     return (
         <Pressable onPress={handlePress} style={styles.container}>
@@ -46,3 +48,5 @@ const styles = StyleSheet.create({
         backgroundColor: '#f0f0f0',
     },
 });
+
+export const PhotoItem = memo(PhotoItemComponent);

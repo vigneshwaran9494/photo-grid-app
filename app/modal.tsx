@@ -1,4 +1,6 @@
-
+import { ThemedText } from '@/components/themed-text';
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { Colors } from '@/constants/theme';
 import { useGetPhotoByIdQuery } from '@/data/api/photos-api';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -17,7 +19,7 @@ export default function ModalScreen() {
   
   if (isLoading) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container,styles.centerContainer]}>
         <ActivityIndicator size="large" color="#fff" />
       </View>
     );
@@ -25,13 +27,19 @@ export default function ModalScreen() {
 
   if (error) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container,styles.centerContainer]}>
         <Pressable onPress={handleClose} style={styles.closeButton}>
-          <Text style={styles.closeButtonText}>✕</Text>
+        <IconSymbol size={28} name="house.fill" color={Colors.light.text} />
         </Pressable>
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>Photo not found</Text>
-        </View>
+        <ThemedText style={styles.errorText}>Photo not found</ThemedText>
+      </View>
+    );
+  }
+
+  if (!photo) {
+    return (
+      <View style={[styles.container,styles.centerContainer]}>
+        <ActivityIndicator size="large" color="#fff" />
       </View>
     );
   }
@@ -43,7 +51,7 @@ export default function ModalScreen() {
     <View style={styles.container}>
       <StatusBar hidden />
       <Pressable onPress={handleClose} style={styles.closeButton}>
-        <Text style={styles.closeButtonText}>✕</Text>
+        <ThemedText style={styles.closeButtonText}>✕</ThemedText>
       </Pressable>
       <View style={styles.imageContainer}>
         <Image
@@ -56,9 +64,9 @@ export default function ModalScreen() {
       </View>
       {(photo.description || photo.alt_description) && (
         <View style={styles.infoContainer}>
-          <Text style={styles.description}>
+          <ThemedText numberOfLines={2} style={styles.description}>
             {photo.description || photo.alt_description}
-          </Text>
+          </ThemedText>
           {photo.user && (
             <Text style={styles.author}>
               Photo by {photo.user.name || photo.user.username}
@@ -74,6 +82,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#000',
+  },
+  centerContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   closeButton: {
     position: 'absolute',

@@ -26,6 +26,11 @@ export const photosApi = createApi({
         method: 'GET',
         params: { page, perPage },
       }),
+      transformResponse: (response: Photo[]): PhotosListData => {
+        return {
+          photos: Array.isArray(response) ? response : [],
+        };
+      },
       // Serialize query args to group by perPage only (ignore page for cache key)
       // This allows all pages to be merged into the same cache entry
       serializeQueryArgs: ({ queryArgs }) => {
@@ -62,6 +67,7 @@ export const photosApi = createApi({
         url: `${API_ENDPOINTS.PHOTOS}/${id}`,
         method: 'GET',
       }),
+      transformResponse: (response: Photo) => response,
     }),
   }),
 });
