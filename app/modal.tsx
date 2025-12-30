@@ -1,10 +1,11 @@
 import { ThemedText } from '@/components/themed-text';
 import { ErrorState } from '@/components/ui/error-state';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { ProgressiveImage } from '@/components/ui/progressive-image';
 import { Colors } from '@/constants/theme';
 import { useGetPhotoByIdQuery } from '@/data/api/photos-api';
-import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
+import { useMemo } from 'react';
 import { ActivityIndicator, Dimensions, Pressable, StatusBar, StyleSheet, Text, View } from 'react-native';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -48,6 +49,12 @@ export default function ModalScreen() {
   const aspectRatio = photo.height / photo.width;
   const imageHeight = Math.min(SCREEN_HEIGHT, SCREEN_WIDTH * aspectRatio);
 
+  // Prepare URLs array: regular first, then full for progressive loading
+  const imageUrls = useMemo(() => [
+    photo.urls.regular,
+    photo.urls.full,
+  ], [photo.urls.regular, photo.urls.full]);
+
   return (
     <View style={styles.container}>
       <StatusBar hidden />
@@ -55,9 +62,10 @@ export default function ModalScreen() {
         <ThemedText style={styles.closeButtonText}>✕</ThemedText>
       </Pressable>
       <View style={styles.imageContainer}>
-        <Image
-          source={{ uri: photo.urls.full }}
-          placeholder={{ blurhash: photo.blur_hash }}
+        <ProgressiveImage
+          blurHash={photo.blur_hash}
+          urls={imageUrls}
+          mode="modal"
           contentFit="contain"
           style={[styles.image, { height: imageHeight }]}
           transition={200}

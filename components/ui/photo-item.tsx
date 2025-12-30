@@ -1,8 +1,8 @@
 import { Photo } from "@/data/types/photos-list-data";
-import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { memo, useCallback, useMemo } from "react";
 import { Dimensions, Pressable, StyleSheet } from "react-native";
+import { ProgressiveImage } from "./progressive-image";
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const GRID_PADDING = 4;
@@ -27,13 +27,20 @@ function PhotoItemComponent({ photo }: { photo: Photo }) {
         });
     }, [photo.id, router]);
 
+    // Prepare URLs array: regular is the default for list view
+    const imageUrls = useMemo(() => [
+        photo.urls.regular,
+        photo.urls.full,
+    ], [photo.urls.regular, photo.urls.full]);
+
     return (
         <Pressable onPress={handlePress} style={styles.container}>
-            <Image 
-                contentFit="cover" 
-                placeholder={{ blurhash: photo.blur_hash }} 
-                source={{ uri: photo.urls.regular }} 
-                style={[styles.image, { width: COLUMN_WIDTH, height: imageHeight }]} 
+            <ProgressiveImage
+                blurHash={photo.blur_hash}
+                urls={imageUrls}
+                mode="list"
+                contentFit="cover"
+                style={[styles.image, { width: COLUMN_WIDTH, height: imageHeight }]}
             />
         </Pressable>
     );
